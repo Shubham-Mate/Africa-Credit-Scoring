@@ -1,30 +1,19 @@
 from pathlib import Path
+import pickle
+import logging
+from africa_loan_defaulting.config import MODELS_DIR, PROCESSED_DATA_DIR, MODEL_NAME
+import pandas as pd
 
-import typer
-from loguru import logger
-from tqdm import tqdm
+logging.basicConfig(level=logging.DEBUG, force=True)
 
-from africa_loan_defaulting.config import MODELS_DIR, PROCESSED_DATA_DIR
+def predict(X) -> pd.DataFrame:
+    model = pickle.load(open(MODELS_DIR / MODEL_NAME, "rb"))
+    logging.info("Model Successfully Loaded")
+    predicted = model.predict(X)
 
-app = typer.Typer()
-
-
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    features_path: Path = PROCESSED_DATA_DIR / "test_features.csv",
-    model_path: Path = MODELS_DIR / "model.pkl",
-    predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
-    # -----------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Performing inference for model...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Inference complete.")
-    # -----------------------------------------
-
-
-if __name__ == "__main__":
-    app()
+    #submission = pd.DataFrame({
+    #'ID': X['ID'],
+    #'Target': predicted
+    #})
+    #submission = submission.set_index('ID')
+    return predicted
